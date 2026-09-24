@@ -147,7 +147,10 @@ python -m fantasy_projections.aggregate         # rebuild the workbook from outp
 ## Running it with Claude Code
 
 [Claude Code](https://claude.com/claude-code) can set up and run the project for
-you, from your terminal or inside VS Code.
+you, from your terminal or inside VS Code. The repo includes a
+[`CLAUDE.md`](CLAUDE.md) that Claude Code reads automatically, so it already
+knows the commands, the project layout, and to keep your credentials out of
+the chat.
 
 1. Clone the repo and start Claude Code in the project folder:
 
@@ -208,6 +211,7 @@ ff-projections/
 ├── output/                    Generated workbook + raw/ download cache (git-ignored)
 ├── docs/                      Screenshot used in this README
 ├── .env.example               Template for your league IDs and ESPN cookies
+├── CLAUDE.md                  Project guide for Claude Code
 ├── LICENSE
 ├── requirements.txt
 └── README.md
