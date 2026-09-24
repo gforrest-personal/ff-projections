@@ -16,7 +16,7 @@ Run everything from the repo root inside the virtual environment:
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env                            # the user fills in the values
+cp .env.example .env                            # the user fills in YAHOO_LEAGUE_ID
 
 python -m fantasy_projections                   # full pipeline: fetch all 3 sites, write workbook
 python -m fantasy_projections.sources.sleeper   # fetch one site (also .espn, .yahoo)
@@ -24,18 +24,18 @@ python -m fantasy_projections.aggregate         # rebuild workbook from output/r
 ```
 
 There is no test suite. To check a change, rebuild with `aggregate` and inspect
-the workbook with pandas or openpyxl. Sleeper needs no credentials; ESPN and
-Yahoo need the user's. With only Sleeper cached, the run succeeds but the board
-is empty, because a player needs all three projections. That is expected, not
-a bug.
+the workbook with pandas or openpyxl. Sleeper and ESPN need no credentials;
+Yahoo needs the user's. Without a Yahoo download cached, the run succeeds but
+the board is empty, because a player needs all three projections. That is
+expected, not a bug.
 
 ## Credentials: handle with care
 
-- `.env` (league IDs, ESPN `SWID`/`espn_s2` cookies) and `yahoo_cookies.txt`
-  (a Yahoo session cookie) contain the user's login credentials. Never print,
-  echo, or commit their values. To check setup, report which keys are set
-  without showing the values.
-- Ask the user to paste cookies directly into those files, not into the chat.
+- `yahoo_cookies.txt` holds the user's Yahoo session cookie, a login
+  credential, and `.env` holds their Yahoo league ID. Never print, echo, or
+  commit their values. To check setup, report whether they're set without
+  showing the values.
+- Ask the user to paste the cookie directly into the file, not into the chat.
 - `.env`, `yahoo_cookies.txt`, and `output/` are git-ignored. Keep it that way.
 
 ## Layout
@@ -51,6 +51,18 @@ a bug.
   `_ALIASES`), merge, average, `build_board`, then calls the workbook writer.
 - `fantasy_projections/excel_export.py`: formatting and writing only.
 - `fantasy_projections/__main__.py`: runs the sources in order, then aggregate.
+
+## How each source gets half-PPR numbers
+
+- `sleeper.py`: Sleeper's public projections API; reads `stats.pts_half_ppr`.
+  No auth.
+- `espn.py`: ESPN's undocumented public fantasy API (`leaguedefaults/1`, which
+  is standard scoring), filtered with the `X-Fantasy-Filter` header. Half-PPR
+  = season projection `appliedTotal` + 0.5 x projected receptions (stat
+  `"53"`). No auth.
+- `yahoo.py`: scrapes the user's league Players page (`/f1/<league>/players`,
+  `stat1=S_PS_<SEASON>`) with their session cookie. The points use the
+  league's scoring settings, so the league must award 0.5 per reception.
 
 ## Behavior to preserve
 
@@ -69,8 +81,12 @@ a bug.
    `_ALIASES` in `aggregate.py`. Keys and values are already normalized:
    lowercase, no punctuation, no Jr./Sr./II suffixes.
 3. If a site has no projection at all, that's usually expected. Once the
-   season starts, ESPN reports `projected_total_points = 0` for injured
-   players (OUT, IR), and the ESPN fetcher drops zero projections.
+   season starts, sites zero out or drop season projections for injured
+   players (OUT, IR); the ESPN fetcher skips zero projections, and Sleeper and
+   Yahoo skip missing ones.
+
+If Yahoo's numbers run consistently higher or lower than Sleeper's and ESPN's,
+the user's Yahoo league probably isn't set to half-PPR scoring.
 
 ## Conventions
 

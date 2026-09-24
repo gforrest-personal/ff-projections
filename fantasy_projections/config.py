@@ -1,9 +1,9 @@
 """Shared configuration for the fantasy projections aggregator.
 
-Secrets and personal identifiers (league IDs, ESPN cookies) are read from
-environment variables so they never live in source control. Copy `.env.example`
-to `.env` and fill in your values, or export the variables in your shell. See
-README.md for how to obtain each one.
+Personal settings (the Yahoo league ID) are read from environment variables so
+they never live in source control. Copy `.env.example` to `.env` and fill in
+your values, or export the variables in your shell. The Yahoo session cookie
+lives in `yahoo_cookies.txt`. See README.md for how to obtain each one.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ def require(name: str, value: str | None) -> str:
     """Return a required config value, or exit with a clear message if missing.
 
     Called by the fetchers at run time (not import time) so that sources which
-    need no credentials — like Sleeper — keep working even with an empty .env.
+    need no credentials, like Sleeper and ESPN, keep working with an empty .env.
     """
     if not value:
         raise SystemExit(
@@ -57,12 +57,7 @@ POSITION_LIMITS = {
     "TE": 20,
 }
 
-# --- ESPN (private league requires cookie auth; see README) ---
-ESPN_LEAGUE_ID = os.environ.get("ESPN_LEAGUE_ID")
-ESPN_SWID = os.environ.get("ESPN_SWID")
-ESPN_S2 = os.environ.get("ESPN_S2")
-
-# --- Yahoo (requires a browser session cookie in yahoo_cookies.txt; see README) ---
+# --- Yahoo (requires a half-PPR league and a browser session cookie; see README) ---
 YAHOO_LEAGUE_ID = os.environ.get("YAHOO_LEAGUE_ID")
 YAHOO_COOKIE_FILE = PROJECT_ROOT / "yahoo_cookies.txt"
 

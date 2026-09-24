@@ -61,13 +61,27 @@ Yahoo ───┘
 
 ---
 
+## Where the numbers come from
+
+| Site | How it's pulled | What you need |
+|------|-----------------|---------------|
+| **Sleeper** | Sleeper's public projections API, which includes a half-PPR total | Nothing |
+| **ESPN** | ESPN's public (undocumented) fantasy API. It returns standard-scoring projections for every player; the tool adds 0.5 points per projected reception to get half-PPR | Nothing |
+| **Yahoo** | Scrapes the **Players** page of your Yahoo league, showing season projections sorted by points | A Yahoo league with **half-PPR** scoring, plus your login cookie |
+
+Yahoo scores projections with **your league's scoring settings**, so the league
+must award **0.5 points per reception**. Otherwise its numbers won't be
+half-PPR and the averages will be off. Any league works, including an empty one
+you create just for this; you don't need to draft in it.
+
+---
+
 ## Requirements
 
 - Python 3.9+
 - The packages in `requirements.txt`
-- Your own **ESPN** and **Yahoo** fantasy leagues. Both sites serve projections
-  through your league pages, so the tool needs your league IDs and login
-  cookies. Sleeper needs nothing.
+- A **Yahoo** fantasy football league with **half-PPR** scoring (see
+  [above](#where-the-numbers-come-from)). Sleeper and ESPN need no account.
 
 ---
 
@@ -82,28 +96,22 @@ python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\ac
 pip install -r requirements.txt
 ```
 
-### 2. Add your league IDs and credentials
+### 2. Connect your Yahoo league
 
-Copy the template and fill in your values:
+**Check the league's scoring.** In your Yahoo league's settings, **Receptions**
+should be worth **0.5** points. If you're creating a league just for this tool,
+set that before running it.
+
+**League ID.** Copy the template, then set `YAHOO_LEAGUE_ID` in `.env` to the
+number in your league's URL (`.../f1/{YAHOO_LEAGUE_ID}/...`):
 
 ```bash
 cp .env.example .env
 ```
 
-Then edit `.env`. Here's how to find each value:
-
-**League IDs**: open your league on each site; the number in the URL is the ID.
-- ESPN: `.../leagues/{ESPN_LEAGUE_ID}/...`
-- Yahoo: `.../f1/{YAHOO_LEAGUE_ID}/...`
-
-**ESPN cookies** (`ESPN_SWID` and `ESPN_S2`), only needed for a **private**
-league:
-1. Log in at [espn.com](https://espn.com).
-2. Open DevTools → **Application** → **Cookies** → `espn.com`.
-3. Copy the values of `SWID` (keep the curly braces) and `espn_s2`.
-
-**Yahoo cookie**: Yahoo requires a full browser session, kept in a separate
-file (not in `.env`):
+**Login cookie.** Yahoo only shows projections to a logged-in league member,
+so the tool reuses your browser session, kept in a separate file (not in
+`.env`):
 1. Log in to your Yahoo fantasy league.
 2. Open DevTools → **Network** tab, reload the players page.
 3. Click any request to `football.fantasysports.yahoo.com`, find the **`Cookie:`**
@@ -126,9 +134,10 @@ python -m fantasy_projections
 
 This downloads fresh projections from all three sites. When it finishes, a new
 `output/` folder appears in the project (in VS Code, look in the Explorer
-sidebar; it shows greyed out because git ignores it). Open **`output/fantasy_draft_board.xlsx`** in Excel, Numbers, or Google
-Sheets. VS Code can't preview `.xlsx` files, so right-click it and choose
-**Reveal in Finder** (macOS) or **Reveal in File Explorer** (Windows).
+sidebar; it shows greyed out because git ignores it). Open
+**`output/fantasy_draft_board.xlsx`** in Excel, Numbers, or Google Sheets. VS
+Code can't preview `.xlsx` files, so right-click it and choose **Reveal in
+Finder** (macOS) or **Reveal in File Explorer** (Windows).
 
 You can also run one step at a time. Because each download is cached in
 `output/raw/`, if one site fails (say, an expired Yahoo cookie) you can fix it,
@@ -137,7 +146,7 @@ others:
 
 ```bash
 python -m fantasy_projections.sources.sleeper   # no credentials needed
-python -m fantasy_projections.sources.espn      # needs ESPN_* in .env
+python -m fantasy_projections.sources.espn      # no credentials needed
 python -m fantasy_projections.sources.yahoo     # needs yahoo_cookies.txt + YAHOO_LEAGUE_ID
 python -m fantasy_projections.aggregate         # rebuild the workbook from output/raw/
 ```
@@ -165,9 +174,10 @@ the chat.
    > Set up this project: create a virtual environment, install the
    > requirements, and copy .env.example to .env.
 
-3. Fill in `.env` and `yahoo_cookies.txt` yourself (see
-   [Setup](#2-add-your-league-ids-and-credentials)). Paste the cookies straight
-   into those files rather than into the chat, since they're login credentials.
+3. Add your Yahoo league ID to `.env` and your cookie to `yahoo_cookies.txt`
+   yourself (see [Setup](#2-connect-your-yahoo-league)). Paste the cookie
+   straight into the file rather than into the chat, since it's a login
+   credential.
 
 4. Ask it to run the tool:
 
@@ -201,16 +211,16 @@ To tune the board for a different league size, just edit `POSITION_LIMITS`.
 ff-projections/
 ├── fantasy_projections/       Python package
 │   ├── __main__.py            Entry point: runs the full pipeline end to end
-│   ├── config.py              Settings and file paths; loads secrets from .env
+│   ├── config.py              Settings and file paths; reads .env
 │   ├── sources/               One module per projection site
 │   │   ├── sleeper.py         Sleeper (public API)
-│   │   ├── espn.py            ESPN (espn-api, cookie auth)
-│   │   └── yahoo.py           Yahoo (requests + BeautifulSoup scraper)
+│   │   ├── espn.py            ESPN (public, undocumented fantasy API)
+│   │   └── yahoo.py           Yahoo (scrapes your league's Players page)
 │   ├── aggregate.py           Match names, merge, average, build the board
 │   └── excel_export.py        Format and write the Excel workbook
 ├── output/                    Generated workbook + raw/ download cache (git-ignored)
 ├── docs/                      Screenshot used in this README
-├── .env.example               Template for your league IDs and ESPN cookies
+├── .env.example               Template for your Yahoo league ID
 ├── CLAUDE.md                  Project guide for Claude Code
 ├── LICENSE
 ├── requirements.txt
@@ -226,10 +236,17 @@ returns the same columns, then wire it into `aggregate.py` and `__main__.py`.
 
 ## Troubleshooting
 
-- **`Yahoo redirected to login — cookies are missing or expired`**: Yahoo
-  session cookies are short-lived. Grab a fresh one (see Setup) and re-run.
-- **`ESPNAccessDenied` / ESPN returns nothing**: your `ESPN_S2`/`SWID` expired
-  or the league went private. Refresh the cookies in `.env`.
+- **`Yahoo redirected to login`** or **`Yahoo returned no players`**: your
+  Yahoo cookie has expired (they're short-lived, so grab a fresh one right
+  before your draft; see Setup). If a fresh cookie doesn't fix it, check
+  `YAHOO_LEAGUE_ID`.
+- **Yahoo's numbers are consistently higher or lower than Sleeper's and
+  ESPN's**, especially for pass catchers: your Yahoo league probably isn't
+  half-PPR. Set Receptions to 0.5 points in its scoring settings and re-run the
+  Yahoo step.
+- **The ESPN step fails with an HTTP error or finds no players**: ESPN's
+  fantasy API is undocumented, so ESPN can change it without notice. The
+  endpoint and filter live at the top of `fantasy_projections/sources/espn.py`.
 - **A player is missing from the board**: one of the three sites probably has
   no projection for him, so no average could be computed. This is common once
   the season starts (see *Built for draft day* above). Search the files in

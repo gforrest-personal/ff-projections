@@ -6,7 +6,7 @@ and builds a draft board. Run the whole pipeline with:
     python -m fantasy_projections
 
 Package layout:
-    config.py        Shared settings, file paths, and secrets loaded from .env
+    config.py        Shared settings and file paths; reads .env
     sources/         One module per projection provider (Sleeper, ESPN, Yahoo)
     aggregate.py     Normalize names, merge sources, average, build the board
     excel_export.py  Write the draft-day Excel workbook (the one output file)

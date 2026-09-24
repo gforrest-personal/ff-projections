@@ -4,6 +4,10 @@ Yahoo requires an authenticated session. Export your browser's Cookie header for
 football.fantasysports.yahoo.com into `yahoo_cookies.txt` in the project root
 (a single line, exactly as sent in the request's `Cookie:` header) and this
 module will reuse it via a plain requests.Session().
+
+The projected points use the league's scoring settings, so the league must be
+half-PPR (0.5 points per reception) for the numbers to line up with the other
+sources.
 """
 
 import re
@@ -146,6 +150,14 @@ def fetch_yahoo() -> pd.DataFrame:
 
             all_rows.extend(page_rows)
             time.sleep(0.5)  # be polite
+
+    # An expired session doesn't always redirect to login; Yahoo may instead
+    # serve a "There was a problem" page with no player table.
+    if not all_rows:
+        sys.exit(
+            "Yahoo returned no players — cookies are probably expired, or "
+            f"YAHOO_LEAGUE_ID is wrong. Refresh {COOKIE_FILE} and re-run."
+        )
 
     df = pd.DataFrame(all_rows)
 
