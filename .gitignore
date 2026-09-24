@@ -1,0 +1,19 @@
+# --- Secrets (NEVER commit these) ---
+.env
+yahoo_cookies.txt
+
+# --- Generated output (regenerated on every run) ---
+output/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/
