@@ -17,7 +17,9 @@ sites have a projection for him; a missing source is never treated as zero.
 
 ## What you get
 
-One file: **`output/fantasy_draft_board.xlsx`**
+One file: **`output/fantasy_draft_board.xlsx`**. The `output/` folder isn't in
+the repo; it's created the first time you run the tool, and each run refreshes
+it with the latest projections.
 
 | Sheet | What's in it |
 |-------|--------------|
@@ -58,7 +60,9 @@ Yahoo ───┘
 
 - Python 3.9+
 - The packages in `requirements.txt`
-- An ESPN account (for a private ESPN league) and a Yahoo account
+- Your own **ESPN** and **Yahoo** fantasy leagues. Both sites serve projections
+  through your league pages, so the tool needs your league IDs and login
+  cookies. Sleeper needs nothing.
 
 ---
 
@@ -69,7 +73,7 @@ Yahoo ───┘
 ```bash
 git clone https://github.com/gforrest-personal/ff-projections.git
 cd ff-projections
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -115,8 +119,11 @@ From the project root, run the whole pipeline:
 python -m fantasy_projections
 ```
 
-This downloads fresh projections from all three sites and writes
-`output/fantasy_draft_board.xlsx`.
+This downloads fresh projections from all three sites. When it finishes, a new
+`output/` folder appears in the project (in VS Code, look in the Explorer
+sidebar; it shows greyed out because git ignores it). Open **`output/fantasy_draft_board.xlsx`** in Excel, Numbers, or Google
+Sheets. VS Code can't preview `.xlsx` files, so right-click it and choose
+**Reveal in Finder** (macOS) or **Reveal in File Explorer** (Windows).
 
 You can also run one step at a time. Because each download is cached in
 `output/raw/`, if one site fails (say, an expired Yahoo cookie) you can fix it,
@@ -129,6 +136,40 @@ python -m fantasy_projections.sources.espn      # needs ESPN_* in .env
 python -m fantasy_projections.sources.yahoo     # needs yahoo_cookies.txt + YAHOO_LEAGUE_ID
 python -m fantasy_projections.aggregate         # rebuild the workbook from output/raw/
 ```
+
+---
+
+## Running it with Claude Code
+
+[Claude Code](https://claude.com/claude-code) can set up and run the project for
+you, from your terminal or inside VS Code.
+
+1. Clone the repo and start Claude Code in the project folder:
+
+   ```bash
+   git clone https://github.com/gforrest-personal/ff-projections.git
+   cd ff-projections
+   claude
+   ```
+
+2. Ask it to set things up:
+
+   > Set up this project: create a virtual environment, install the
+   > requirements, and copy .env.example to .env.
+
+3. Fill in `.env` and `yahoo_cookies.txt` yourself (see
+   [Setup](#2-add-your-league-ids-and-credentials)). Paste the cookies straight
+   into those files rather than into the chat, since they're login credentials.
+
+4. Ask it to run the tool:
+
+   > Run the pipeline and tell me when the draft board is ready.
+
+Once it's set up, you can also ask things like:
+
+- "Rebuild the workbook from the cached downloads."
+- "Change the board size for a 12-team league."
+- "Why isn't *player name* on the draft board?"
 
 ---
 
