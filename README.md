@@ -156,6 +156,7 @@ fantasy_projections/
 │   └── excel_export.py        Write the formatted Excel workbook
 ├── output/                    Generated CSVs and workbook (git-ignored)
 ├── .env.example               Template for your league IDs and ESPN cookies
+├── LICENSE
 ├── requirements.txt
 └── README.md
 ```
@@ -187,3 +188,15 @@ that returns the same columns, then wire it into `aggregate.py` and
 - This is a personal side project and is not affiliated with Sleeper, ESPN, or
   Yahoo. Yahoo data is scraped from your own logged-in league view; be
   respectful of their servers (the scraper already rate-limits itself).
+
+---
+
+## Contributing
+
+This is a personal project, but you're welcome to fork it and adapt it for your
+own league. Issues and pull requests are welcome, though changes are merged at
+the owner's discretion.
+
+## License
+
+[MIT](LICENSE)
