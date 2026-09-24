@@ -43,16 +43,17 @@ POSITION_COLUMNS = [
     "drop_to_next",
 ]
 
-# Reasonable on-screen widths per column name.
+# On-screen widths per column name, wide enough that bold headers aren't
+# clipped by the filter buttons.
 COLUMN_WIDTHS = {
     "player": 24,
-    "team": 7,
-    "position": 10,
-    "sleeper_points": 15,
-    "espn_points": 14,
-    "yahoo_points": 14,
-    "average_points": 16,
-    "drop_to_next": 14,
+    "team": 9,
+    "position": 12,
+    "sleeper_points": 19,
+    "espn_points": 17,
+    "yahoo_points": 18,
+    "average_points": 20,
+    "drop_to_next": 18,
 }
 
 HEADER_FILL = PatternFill("solid", fgColor="1F3864")
