@@ -21,6 +21,11 @@ One file: **`output/fantasy_draft_board.xlsx`**. The `output/` folder isn't in
 the repo; it's created the first time you run the tool, and each run refreshes
 it with the latest projections.
 
+![The RB sheet of the draft board workbook, with each site's projection, the average, and a color-scaled drop_to_next column](docs/draft-board.png)
+
+*The RB sheet. Darker `drop_to_next` cells mark tier cliffs, like the 30-point
+drop after Bijan Robinson.*
+
 | Sheet | What's in it |
 |-------|--------------|
 | **ALL** | The **199-player draft board**, every position, ranked by average |
@@ -201,6 +206,7 @@ ff-projections/
 │   ├── aggregate.py           Match names, merge, average, build the board
 │   └── excel_export.py        Format and write the Excel workbook
 ├── output/                    Generated workbook + raw/ download cache (git-ignored)
+├── docs/                      Screenshot used in this README
 ├── .env.example               Template for your league IDs and ESPN cookies
 ├── LICENSE
 ├── requirements.txt
