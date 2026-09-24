@@ -14,23 +14,21 @@ treated as zero.
 
 ## What you get
 
-Running the tool writes these files to the `output/` folder (git-ignored):
+One file: **`output/fantasy_draft_board.xlsx`**, a formatted draft-day workbook.
 
-| File | What's in it |
-|------|--------------|
-| `sleeper_projections.csv` | Raw Sleeper projections |
-| `espn_projections.csv` | Raw ESPN projections |
-| `yahoo_projections.csv` | Raw Yahoo projections |
-| `all_projections.csv` | **Every** matched player, all three sources side by side |
-| `final_projections.csv` | The trimmed **199-player draft board** |
-| `fantasy_draft_board.xlsx` | The draft board as a formatted, draft-day Excel workbook |
+| Sheet | What's in it |
+|-------|--------------|
+| **ALL** | The trimmed **199-player draft board**, every position, ranked by average |
+| **QB / RB / WR / TE** | The board split by position, plus a **`drop_to_next`** column |
 
-The Excel workbook has an **ALL** sheet plus one sheet per position (**QB / RB /
-WR / TE**). Each position sheet adds a **`drop_to_next`** column — how many
-projected points a player is worth *over the next player at his position* — so
-you can spot tier cliffs on draft day (e.g. a 20-point drop after TE2). Headers
-are frozen and filtered, point columns show two decimals, and `drop_to_next` is
-color-scaled so big drop-offs stand out.
+`drop_to_next` is how many projected points a player is worth *over the next
+player at his position*, so you can spot tier cliffs on draft day (e.g. a
+20-point drop after TE2). Headers are frozen and filtered, point columns show
+two decimals, and `drop_to_next` is color-scaled so big drop-offs stand out.
+
+Each site's raw download is also cached in `output/raw/` so you can rebuild the
+workbook without re-fetching (see [Usage](#usage)). You never need to open
+those files.
 
 ---
 
@@ -121,8 +119,7 @@ Or run any step on its own (handy for debugging):
 python -m fantasy_projections.sources.sleeper   # no credentials needed
 python -m fantasy_projections.sources.espn      # needs ESPN_* in .env
 python -m fantasy_projections.sources.yahoo     # needs yahoo_cookies.txt + YAHOO_LEAGUE_ID
-python -m fantasy_projections.aggregate         # merges whatever CSVs already exist in output/
-python -m fantasy_projections.excel_export      # rebuilds the workbook from output/final_projections.csv
+python -m fantasy_projections.aggregate         # rebuild the workbook from cached downloads in output/raw/
 ```
 
 ---
@@ -154,15 +151,15 @@ fantasy_projections/
 │   │   └── yahoo.py           Yahoo projections (requests + BeautifulSoup scraper)
 │   ├── aggregate.py           Normalize names, merge, average, build the board
 │   └── excel_export.py        Write the formatted Excel workbook
-├── output/                    Generated CSVs and workbook (git-ignored)
+├── output/                    The workbook + raw/ download cache (git-ignored)
 ├── .env.example               Template for your league IDs and ESPN cookies
 ├── LICENSE
 ├── requirements.txt
 └── README.md
 ```
 
-Data flows one way: `sources/*` write raw CSVs to `output/` → `aggregate`
-merges them into the full dataset and draft board → `excel_export` turns the
+Data flows one way: `sources/*` cache each site's download in `output/raw/` →
+`aggregate` merges them and builds the draft board → `excel_export` writes the
 board into the workbook. To add a new provider, drop a module in `sources/`
 that returns the same columns, then wire it into `aggregate.py` and
 `__main__.py`.
@@ -176,8 +173,8 @@ that returns the same columns, then wire it into `aggregate.py` and
 - **`ESPNAccessDenied` / ESPN returns nothing** — your `ESPN_S2`/`SWID` expired
   or the league went private. Refresh the cookies in `.env`.
 - **A player is missing from the board** — he's probably missing a projection on
-  one of the three sites, so no average could be computed. Check
-  `output/all_projections.csv` to see which source is blank.
+  one of the three sites, so no average could be computed. Search the files in
+  `output/raw/` to see which site doesn't list him.
 
 ---
 
@@ -185,6 +182,9 @@ that returns the same columns, then wire it into `aggregate.py` and
 
 - Projections are **half-PPR, full-season**. Kickers and D/ST are intentionally
   skipped.
+- Built for **draft day**. Once the season starts, sites zero out season
+  projections for injured players (e.g. OUT or IR), so those players drop off
+  the board. Run it before your draft for the full picture.
 - This is a personal side project and is not affiliated with Sleeper, ESPN, or
   Yahoo. Yahoo data is scraped from your own logged-in league view; be
   respectful of their servers (the scraper already rate-limits itself).

@@ -1,10 +1,10 @@
-"""Build a draft-day Excel workbook from the final 199-player draft board.
+"""Write the draft-day Excel workbook, the tool's one output meant for people.
 
-Reads the existing final_projections.csv (produced by aggregate.py) and writes
-fantasy_draft_board.xlsx with an ALL sheet plus one sheet per position. Position
-sheets add a `drop_to_next` column — the average_points a player projects above
-the next player AT THE SAME POSITION — so you can see positional cliffs on draft
-day. This module only adds output; it never touches collection or matching.
+fantasy_draft_board.xlsx has an ALL sheet (the full draft board) plus one sheet
+per position. Position sheets add a `drop_to_next` column — the average_points a
+player projects above the next player AT THE SAME POSITION — so you can see
+positional cliffs on draft day. This module only formats and writes; it never
+touches collection or matching.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.formatting.rule import ColorScaleRule
 from openpyxl.utils import get_column_letter
 
-from fantasy_projections.config import FINAL_CSV, XLSX_FILE, POSITION_LIMITS
+from fantasy_projections.config import XLSX_FILE, POSITION_LIMITS
 
 # Point columns that should render with two decimals.
 POINT_COLS = {
@@ -122,11 +122,8 @@ def _format_sheet(ws) -> None:
         ws.conditional_formatting.add(rng, rule)
 
 
-def build_workbook(board: pd.DataFrame | None = None) -> None:
+def build_workbook(board: pd.DataFrame) -> None:
     """Write fantasy_draft_board.xlsx from the final draft board."""
-    if board is None:
-        board = pd.read_csv(FINAL_CSV)
-
     sheets = {"ALL": _all_sheet(board)}
     for position in POSITION_LIMITS:  # QB, RB, WR, TE
         sheets[position] = _position_sheet(board, position)
@@ -138,11 +135,3 @@ def build_workbook(board: pd.DataFrame | None = None) -> None:
             _format_sheet(writer.sheets[name])
 
     print(f"Excel: wrote {XLSX_FILE} with sheets {list(sheets)}")
-
-
-def main() -> None:
-    build_workbook()
-
-
-if __name__ == "__main__":
-    main()

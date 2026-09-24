@@ -1,4 +1,9 @@
-"""Merge Sleeper, ESPN, and Yahoo projections into a single averaged CSV."""
+"""Merge Sleeper, ESPN, and Yahoo projections, build the draft board, and write
+the Excel workbook.
+
+Run on its own (`python -m fantasy_projections.aggregate`) to rebuild the
+workbook from the cached downloads in output/raw/ without re-fetching.
+"""
 
 import re
 import os
@@ -9,11 +14,10 @@ from fantasy_projections.config import (
     SLEEPER_CSV,
     ESPN_CSV,
     YAHOO_CSV,
-    FULL_CSV,
-    FINAL_CSV,
     POSITIONS,
     POSITION_LIMITS,
 )
+from fantasy_projections.excel_export import build_workbook
 
 # Common suffixes that differ across platforms and should be stripped.
 _SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
@@ -146,17 +150,14 @@ def build_board(full: pd.DataFrame) -> pd.DataFrame:
 
 def main() -> None:
     full = aggregate()
-    full.to_csv(FULL_CSV, index=False)
     complete = full["average_points"].notna().sum()
-    print(
-        f"Aggregate: wrote {len(full)} players to {FULL_CSV} "
-        f"({complete} with all three projections)"
-    )
+    print(f"Aggregate: matched {len(full)} players ({complete} with all three projections)")
 
     board = build_board(full)
-    board.to_csv(FINAL_CSV, index=False)
     counts = board["position"].value_counts().to_dict()
-    print(f"Draft board: wrote {len(board)} players to {FINAL_CSV} {counts}")
+    print(f"Draft board: {len(board)} players {counts}")
+
+    build_workbook(board)
 
 
 if __name__ == "__main__":

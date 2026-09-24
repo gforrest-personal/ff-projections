@@ -1,10 +1,10 @@
-"""Run the full projection pipeline: Sleeper -> ESPN -> Yahoo -> aggregate -> Excel.
+"""Run the full projection pipeline: Sleeper -> ESPN -> Yahoo -> draft board workbook.
 
 Usage (from the project root):
     python -m fantasy_projections
 """
 
-from fantasy_projections import aggregate, excel_export
+from fantasy_projections import aggregate
 from fantasy_projections.sources import espn, sleeper, yahoo
 
 
@@ -18,13 +18,10 @@ def main() -> None:
     print("\n=== Yahoo ===")
     yahoo.main()
 
-    print("\n=== Aggregate ===")
+    print("\n=== Draft board ===")
     aggregate.main()
 
-    print("\n=== Excel ===")
-    excel_export.main()
-
-    print("\nDone. See output/final_projections.csv and output/fantasy_draft_board.xlsx")
+    print("\nDone. See output/fantasy_draft_board.xlsx")
 
 
 if __name__ == "__main__":

@@ -68,14 +68,14 @@ YAHOO_COOKIE_FILE = PROJECT_ROOT / "yahoo_cookies.txt"
 
 # --- Output files (all generated on each run; output/ is git-ignored) ---
 OUTPUT_DIR = PROJECT_ROOT / "output"
-OUTPUT_DIR.mkdir(exist_ok=True)
+# Each source's raw download, cached so the board can be rebuilt without
+# re-fetching (e.g. after the Yahoo cookie expires).
+RAW_DIR = OUTPUT_DIR / "raw"
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-SLEEPER_CSV = OUTPUT_DIR / "sleeper_projections.csv"
-ESPN_CSV = OUTPUT_DIR / "espn_projections.csv"
-YAHOO_CSV = OUTPUT_DIR / "yahoo_projections.csv"
-# Full merged dataset (every matched player) — nothing is lost here.
-FULL_CSV = OUTPUT_DIR / "all_projections.csv"
-# The trimmed, position-limited draft board.
-FINAL_CSV = OUTPUT_DIR / "final_projections.csv"
-# Draft-day Excel workbook (ALL + per-position sheets with drop-off analysis).
+SLEEPER_CSV = RAW_DIR / "sleeper.csv"
+ESPN_CSV = RAW_DIR / "espn.csv"
+YAHOO_CSV = RAW_DIR / "yahoo.csv"
+# The one file meant for people: the draft board plus per-position sheets with
+# drop-off analysis.
 XLSX_FILE = OUTPUT_DIR / "fantasy_draft_board.xlsx"

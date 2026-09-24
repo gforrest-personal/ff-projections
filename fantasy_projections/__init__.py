@@ -7,6 +7,6 @@ Package layout:
     config.py        Shared settings, file paths, and secrets loaded from .env
     sources/         One module per projection provider (Sleeper, ESPN, Yahoo)
     aggregate.py     Normalize names, merge sources, average, build the board
-    excel_export.py  Write the formatted draft-day Excel workbook
+    excel_export.py  Write the draft-day Excel workbook (the one output file)
     __main__.py      Run every step end to end
 """
