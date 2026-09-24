@@ -1,4 +1,4 @@
-"""Fetch 2026 half-PPR full-season projections from Sleeper."""
+"""Fetch half-PPR full-season projections from Sleeper's public API."""
 
 import requests
 import pandas as pd

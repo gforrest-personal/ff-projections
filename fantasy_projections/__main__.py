@@ -1,4 +1,4 @@
-"""Run the full projection pipeline: Sleeper -> ESPN -> Yahoo -> draft board workbook.
+"""Run the full pipeline: Sleeper -> ESPN -> Yahoo -> draft board workbook.
 
 Usage (from the project root):
     python -m fantasy_projections

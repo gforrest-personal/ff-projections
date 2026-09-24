@@ -1,4 +1,4 @@
-"""Fetch 2026 projections by scraping Yahoo Fantasy with requests + BeautifulSoup.
+"""Scrape full-season projections from Yahoo Fantasy (requests + BeautifulSoup).
 
 Yahoo requires an authenticated session. Export your browser's Cookie header for
 football.fantasysports.yahoo.com into `yahoo_cookies.txt` in the project root
@@ -6,7 +6,6 @@ football.fantasysports.yahoo.com into `yahoo_cookies.txt` in the project root
 module will reuse it via a plain requests.Session().
 """
 
-import os
 import re
 import sys
 import time
@@ -39,7 +38,7 @@ HEADERS = {
 
 
 def _load_cookies() -> str:
-    if not os.path.exists(COOKIE_FILE):
+    if not COOKIE_FILE.exists():
         sys.exit(
             f"Missing {COOKIE_FILE}. Paste your Yahoo Cookie header into that file "
             "(one line) and re-run."
@@ -87,7 +86,7 @@ def _parse_page(html: str) -> list[dict]:
                 break
 
         # Projected points: the first td.pts in the row holds the season total
-        # for the selected stat context (S_PS_2026).
+        # for the selected stat context (S_PS_<SEASON>).
         pts_cell = row.select_one("td.pts")
         pts = None
         if pts_cell:

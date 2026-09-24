@@ -1,7 +1,9 @@
 """Fantasy football projection aggregator.
 
 Pulls half-PPR season projections from Sleeper, ESPN, and Yahoo, averages them,
-and builds a draft board. Run the whole pipeline with `python -m fantasy_projections`.
+and builds a draft board. Run the whole pipeline with:
+
+    python -m fantasy_projections
 
 Package layout:
     config.py        Shared settings, file paths, and secrets loaded from .env

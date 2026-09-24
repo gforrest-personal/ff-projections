@@ -1,4 +1,4 @@
-"""Fetch 2026 projections from ESPN via the espn-api package."""
+"""Fetch full-season projections from ESPN via the espn-api package."""
 
 import pandas as pd
 from espn_api.football import League

@@ -6,7 +6,7 @@ workbook from the cached downloads in output/raw/ without re-fetching.
 """
 
 import re
-import os
+from pathlib import Path
 
 import pandas as pd
 
@@ -28,7 +28,6 @@ _ALIASES = {
     "michael pittman": "mike pittman",
     "joshua palmer": "josh palmer",
     "cameron ward": "cam ward",
-    "brian thomas": "brian thomas",
     "marquise brown": "hollywood brown",
     "chigoziem okonkwo": "chig okonkwo",
     "gabriel davis": "gabe davis",
@@ -54,8 +53,8 @@ def normalize_name(name: str) -> str:
     return _ALIASES.get(n, n)
 
 
-def _load(path: str, label: str) -> pd.DataFrame:
-    if not os.path.exists(path):
+def _load(path: Path, label: str) -> pd.DataFrame:
+    if not path.exists():
         print(f"  ! {label} file '{path}' not found — skipping.")
         return pd.DataFrame()
     df = pd.read_csv(path)
@@ -64,6 +63,8 @@ def _load(path: str, label: str) -> pd.DataFrame:
 
 
 def aggregate() -> pd.DataFrame:
+    """Merge the cached source CSVs into one row per player, with each site's
+    projection side by side and an average when all three exist."""
     sleeper = _load(SLEEPER_CSV, "Sleeper")
     espn = _load(ESPN_CSV, "ESPN")
     yahoo = _load(YAHOO_CSV, "Yahoo")
@@ -151,7 +152,10 @@ def build_board(full: pd.DataFrame) -> pd.DataFrame:
 def main() -> None:
     full = aggregate()
     complete = full["average_points"].notna().sum()
-    print(f"Aggregate: matched {len(full)} players ({complete} with all three projections)")
+    print(
+        f"Aggregate: matched {len(full)} players "
+        f"({complete} with all three projections)"
+    )
 
     board = build_board(full)
     counts = board["position"].value_counts().to_dict()

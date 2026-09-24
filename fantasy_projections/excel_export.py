@@ -7,8 +7,6 @@ positional cliffs on draft day. This module only formats and writes; it never
 touches collection or matching.
 """
 
-from __future__ import annotations
-
 import pandas as pd
 from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.formatting.rule import ColorScaleRule
