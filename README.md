@@ -209,23 +209,30 @@ To tune the board for a different league size, just edit `POSITION_LIMITS`.
 
 ```
 ff-projections/
+├── docs/
+│   └── draft-board.png        Screenshot used in this README
 ├── fantasy_projections/       Python package
-│   ├── __main__.py            Entry point: runs the full pipeline end to end
-│   ├── config.py              Settings and file paths; reads .env
 │   ├── sources/               One module per projection site
-│   │   ├── sleeper.py         Sleeper (public API)
+│   │   ├── __init__.py
 │   │   ├── espn.py            ESPN (public, undocumented fantasy API)
+│   │   ├── sleeper.py         Sleeper (public API)
 │   │   └── yahoo.py           Yahoo (scrapes your league's Players page)
+│   ├── __init__.py
+│   ├── __main__.py            Entry point: runs the full pipeline end to end
 │   ├── aggregate.py           Match names, merge, average, build the board
+│   ├── config.py              Settings and file paths; reads .env
 │   └── excel_export.py        Format and write the Excel workbook
-├── output/                    Generated workbook + raw/ download cache (git-ignored)
-├── docs/                      Screenshot used in this README
 ├── .env.example               Template for your Yahoo league ID
+├── .gitignore                 Keeps secrets and output/ out of git
 ├── CLAUDE.md                  Project guide for Claude Code
-├── LICENSE
-├── requirements.txt
-└── README.md
+├── LICENSE                    MIT license
+├── README.md
+└── requirements.txt           Python dependencies
 ```
+
+Not in the repo: running the tool creates `output/` (the workbook plus a
+`raw/` download cache), and setup has you create `.env` and
+`yahoo_cookies.txt`. All three are git-ignored.
 
 Data flows one way: `sources/*` cache each site's download in `output/raw/` →
 `aggregate` merges them and builds the draft board → `excel_export` writes the
