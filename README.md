@@ -67,8 +67,8 @@ Yahoo ───┘
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/<your-username>/fantasy-projections.git
-cd fantasy-projections
+git clone https://github.com/gforrest-personal/ff-projections.git
+cd ff-projections
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
